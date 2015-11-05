@@ -3,4 +3,5 @@ A simple ingestion of Twitter messages into Kafka queue on TAP
 
 
 # TODO
-* !!!Switch to org.apache.kafka.clients.producer.KafkaProducer<K,V>
+* check how the app behaves when kafka is down
+* readme :)

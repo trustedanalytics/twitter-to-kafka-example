@@ -1,7 +1,23 @@
+/*
+ * Copyright (c) 2015 Intel Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.trustedanalytics.examples.twitter.config;
 
-import kafka.javaapi.producer.Producer;
-import kafka.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,10 +28,13 @@ import java.util.Properties;
 
 @Configuration
 public class KafkaConfig {
+
     @Value("${kafka.brokers}")
     public String brokers;
-    @Value("${kafka.serializer.class:kafka.serializer.StringEncoder}")
-    public String serializer;
+    @Value("${kafka.key.serializer.class:rg.apache.kafka.common.serialization.StringSerializer}")
+    public String keySerializer;
+    @Value("${kafka.value.serializer.class:org.apache.kafka.common.serialization.StringSerializer}")
+    public String valueSerializer;
 
     @Autowired
     Environment env;
@@ -26,15 +45,13 @@ public class KafkaConfig {
     }
 
     @Bean
-    public Producer<String, String> getKafkaProducer() {
-        System.out.println("getkafka producer " + brokers + " " + serializer);
-        Properties properties = new Properties();
+    public KafkaProducer<String, String> kafkaProducer() {
+        Properties producerConfig = new Properties();
+        //http://kafka.apache.org/documentation.html#producerconfigs
+        producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
+        producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializer);
+        producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializer);
 
-        properties.put("metadata.broker.list", brokers);
-        properties.put("serializer.class", serializer);
-        ProducerConfig producerConfig = new ProducerConfig(properties);
-        Producer<String, String> producer = new Producer<String, String>(producerConfig);
-
-        return producer;
+        return new KafkaProducer<String, String>(producerConfig);
     }
 }
