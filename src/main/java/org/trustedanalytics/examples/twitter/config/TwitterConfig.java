@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
+import com.twitter.hbc.core.endpoint.Location;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
@@ -29,9 +30,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 @Configuration
 public class TwitterConfig {
@@ -48,21 +53,42 @@ public class TwitterConfig {
     @Value("${twitter.secret}")
     String secret;
 
-    @Value("${twitter.terms}")
+    @Value("${twitter.terms:}")
     String[] terms;
 
+    @Value("${twitter.followings:}")
+    String[] followings;
+
+    @Value("${twitter.locations:}")
+    String[] coordinates;
 
     @Bean
     BlockingQueue<String> blockingQueue() {
-        return new LinkedBlockingQueue<String>(10000);
+        return new LinkedBlockingQueue<>(10000);
     }
 
     @Bean
     @Autowired
-    Client twitterClient(@Value("#{blockingQueue}") BlockingQueue<String> blockingQueue) {
+    Client twitterClient(@Value("#{blockingQueue}") BlockingQueue<String> blockingQueue) throws Exception {
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-        // add some track terms
-        endpoint.trackTerms(Lists.newArrayList(terms));
+
+        // add some filter conditions
+        if (terms.length > 0) {
+            endpoint.trackTerms(Lists.newArrayList(terms));
+        }
+
+        List<Long> userIds = parseFollowings(followings);
+        if (userIds.size() > 0) {
+            System.out.println("Followings: " + userIds);
+            endpoint.followings(userIds);
+        }
+
+        List<Location> locations = parseLocations(coordinates);
+        if (locations.size() > 0) {
+            System.out.println("Locations: " + Lists.newArrayList(coordinates));
+            System.out.println("Locations: " + locations);
+            endpoint.locations(locations);
+        }
 
         Authentication auth = new OAuth1(consumerKey, consumerSecret, token, secret);
 
@@ -70,6 +96,41 @@ public class TwitterConfig {
                 .processor(new StringDelimitedProcessor(blockingQueue)).build();
 
         return client;
+    }
+
+    private List<Long> parseFollowings(String[] followings) throws Exception {
+        List<Long> result = new ArrayList<>();
+
+        if (followings == null) {
+            System.out.println("null followings");
+            return result;
+        }
+
+        Arrays.stream(followings).mapToLong(n -> Long.parseLong(n)).forEach(result::add);
+
+        return result;
+    }
+
+    private List<Location> parseLocations(String[] locations) throws Exception {
+        List<Location> result = new ArrayList<>();
+
+        if (locations == null) {
+            System.out.println("null locations");
+            return result;
+        }
+
+        if (locations.length % 4 != 0) {
+            throw new Exception("locations should be a list of pairs of longitude,latitude.");
+        }
+
+        for (int i = 0; i < locations.length / 4; i++) {
+            result.add(new Location(
+                            new Location.Coordinate(Double.parseDouble(locations[i * 2 + 0]), Double.parseDouble(locations[i * 2 + 1])),
+                            new Location.Coordinate(Double.parseDouble(locations[i * 2 + 2]), Double.parseDouble(locations[i * 2 + 3]))
+                    )
+            );
+        }
+        return result;
     }
 
     @Override
