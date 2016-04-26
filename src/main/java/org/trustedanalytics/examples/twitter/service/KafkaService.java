@@ -33,7 +33,7 @@ public class KafkaService {
     String topic;
 
     public void send(String payload) {
-        kafkaProducer.send(new ProducerRecord<String, String>(topic, payload));
+        kafkaProducer.send(new ProducerRecord<>(topic, payload));
     }
 
     @PreDestroy

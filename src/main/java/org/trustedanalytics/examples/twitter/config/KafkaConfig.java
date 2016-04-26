@@ -52,6 +52,6 @@ public class KafkaConfig {
         producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializer);
         producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializer);
 
-        return new KafkaProducer<String, String>(producerConfig);
+        return new KafkaProducer<>(producerConfig);
     }
 }

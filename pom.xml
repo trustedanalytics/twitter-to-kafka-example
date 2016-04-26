@@ -20,7 +20,7 @@
 
     <groupId>org.trustedanalytics.examples</groupId>
     <artifactId>twitter-to-kafka</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>twitter-to-kafka-example</name>
@@ -54,7 +54,22 @@
             <artifactId>spring-boot-devtools</artifactId>
             <version>${spring.boot.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>${spring.boot.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.twitter</groupId>
             <artifactId>hbc-core</artifactId>

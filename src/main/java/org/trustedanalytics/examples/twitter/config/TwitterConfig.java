@@ -35,8 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 @Configuration
 public class TwitterConfig {
@@ -92,13 +90,11 @@ public class TwitterConfig {
 
         Authentication auth = new OAuth1(consumerKey, consumerSecret, token, secret);
 
-        Client client = new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(auth)
+        return new ClientBuilder().hosts(Constants.STREAM_HOST).endpoint(endpoint).authentication(auth)
                 .processor(new StringDelimitedProcessor(blockingQueue)).build();
-
-        return client;
     }
 
-    private List<Long> parseFollowings(String[] followings) throws Exception {
+    private List<Long> parseFollowings(String[] followings) {
         List<Long> result = new ArrayList<>();
 
         if (followings == null) {
@@ -106,7 +102,7 @@ public class TwitterConfig {
             return result;
         }
 
-        Arrays.stream(followings).mapToLong(n -> Long.parseLong(n)).forEach(result::add);
+        Arrays.stream(followings).mapToLong(Long::parseLong).forEach(result::add);
 
         return result;
     }

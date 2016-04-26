@@ -33,9 +33,7 @@ public class Initializer {
 
         try {
             twitterStreamConsumer.run();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (InterruptedException | ParseException e) {
             e.printStackTrace();
         }
     }

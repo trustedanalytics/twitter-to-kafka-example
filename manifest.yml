@@ -1,0 +1,18 @@
+---
+applications:
+- name: twitter-to-kafka
+  memory: 1G
+  instances: 1
+  host: twitter-to-kafka
+  path: target/twitter-to-kafka-0.0.2-SNAPSHOT.jar
+  services:
+  - kafka-twitter-instance
+  env:
+    TWITTER_CONSUMER_KEY: <<your data goes here>>
+    TWITTER_CONSUMER_SECRET: <<your data goes here>>
+    TWITTER_TOKEN: <<your data goes here>>
+    TWITTER_SECRET: <<your data goes here>>
+    TWITTER_TERMS: <<your data goes here; escape hashes>>
+    TWITTER_FOLLOWINGS: <<your data goes here>>
+    TWITTER_LOCATIONS: <<your data goes here>>
+    KAFKA_TOPIC: <<your data goes here>>

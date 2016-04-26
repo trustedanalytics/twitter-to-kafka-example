@@ -62,6 +62,7 @@ public class TwitterStreamConsumer {
             JSONObject jsonObject = (JSONObject) parser.parse(msg);
             Object geo = jsonObject.get("geo");
             Object place = jsonObject.get("place");
+            String text = (String) jsonObject.get("text");
 
             //XXX for debug purposes; remove
             if (geo != null || place != null) {
@@ -71,7 +72,7 @@ public class TwitterStreamConsumer {
                 System.out.println(place);
             }
 
-            kafkaService.send(msg);
+            kafkaService.send(text);
         }
     }
 
