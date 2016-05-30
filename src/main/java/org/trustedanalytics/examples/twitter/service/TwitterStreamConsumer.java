@@ -51,8 +51,6 @@ public class TwitterStreamConsumer {
         int i = 0;
 
         JSONParser parser = new JSONParser();
-        // Do whatever needs to be done with messages
-//        for (int msgRead = 0; msgRead < 10000; msgRead++) {
         while (!twitterClient.isDone()) {
             String msg = blockingQueue.take();
 

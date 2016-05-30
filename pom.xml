@@ -20,7 +20,7 @@
 
     <groupId>org.trustedanalytics.examples</groupId>
     <artifactId>twitter-to-kafka</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.5</version>
     <packaging>jar</packaging>
 
     <name>twitter-to-kafka-example</name>
