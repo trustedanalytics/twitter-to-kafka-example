@@ -23,21 +23,28 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
 
+/**
+ * This is a Kafka service that pushes data to Kafka.
+ */
 @Service
 public class KafkaService {
 
     @Autowired
-    KafkaProducer<String, String> kafkaProducer;
+    private KafkaProducer<String, String> kafkaProducer;
 
     @Autowired
-    String topic;
+    private String topic;
 
+    /**
+     * Writes a message to Kafka under the given topic.
+     * @param payload The message payload
+     */
     public void send(String payload) {
         kafkaProducer.send(new ProducerRecord<>(topic, payload));
     }
 
     @PreDestroy
-    protected void finalize() {
+    protected void destroy() {
         kafkaProducer.close();
     }
 

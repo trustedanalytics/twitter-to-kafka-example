@@ -26,32 +26,36 @@ import org.springframework.core.env.Environment;
 
 import java.util.Properties;
 
+/**
+ * This is a Kafka configuration holder
+ */
 @Configuration
 public class KafkaConfig {
 
     @Value("${kafka.brokers}")
-    public String brokers;
+    private String brokers;
+
     @Value("${kafka.key.serializer.class:rg.apache.kafka.common.serialization.StringSerializer}")
-    public String keySerializer;
+    private String keySerializer;
+
     @Value("${kafka.value.serializer.class:org.apache.kafka.common.serialization.StringSerializer}")
-    public String valueSerializer;
+    private String valueSerializer;
 
     @Autowired
-    Environment env;
+    private Environment env;
 
     @Bean
-    String topic() {
+    public String topic() {
         return env.getProperty("kafka.topic");
     }
 
     @Bean
     public KafkaProducer<String, String> kafkaProducer() {
         Properties producerConfig = new Properties();
-        //http://kafka.apache.org/documentation.html#producerconfigs
+        // Detailed producer configuration can be found here: http://kafka.apache.org/documentation.html#producerconfigs
         producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
         producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializer);
         producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializer);
-
         return new KafkaProducer<>(producerConfig);
     }
 }

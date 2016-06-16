@@ -16,67 +16,67 @@
 
 package org.trustedanalytics.examples.twitter.service;
 
+import com.google.gson.Gson;
 import com.twitter.hbc.core.Client;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+import org.trustedanalytics.examples.twitter.model.TwitterMessage;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.util.concurrent.BlockingQueue;
 
-
+/**
+ * The asynchronous Twitter stream consumer that sends data to the Kafka service.
+ */
 @Service
 @EnableAsync
 public class TwitterStreamConsumer {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TwitterStreamConsumer.class);
+
     @Resource
-    BlockingQueue<String> blockingQueue;
+    private BlockingQueue<String> blockingQueue;
 
     @Autowired
-    Client twitterClient;
+    private Client twitterClient;
 
     @Autowired
-    KafkaService kafkaService;
+    private KafkaService kafkaService;
 
+    /**
+     * This method is the real consumer of the Twitter stream.
+     * It connects to Twitter and waits for the incoming messages from Twitter.
+     * Once it receives a Twitter message, it parses the message
+     * and forwards the message text to the Kafka service.
+     *
+     * @throws InterruptedException if interrupted while waiting for the incoming Twitter message
+     */
     @Async
-    public void run() throws InterruptedException, ParseException {
+    public void run() throws InterruptedException {
+        LOG.info("Twitter data feed consumption started");
+
         twitterClient.connect();
 
-        //XXX for debug purposes; remove
-        int i = 0;
+        Gson gson = new Gson();
 
-        JSONParser parser = new JSONParser();
         while (!twitterClient.isDone()) {
-            String msg = blockingQueue.take();
+            String jsonMessage = blockingQueue.take();
+            LOG.debug("Received json msg: {}", jsonMessage);
 
-            //XXX for debug purposes; remove
-            System.out.println(++i + ". " +msg);
+            TwitterMessage twitterMessage = gson.fromJson(jsonMessage, TwitterMessage.class);
+            LOG.debug("Parsed twitter msg: {}", twitterMessage);
 
-            JSONObject jsonObject = (JSONObject) parser.parse(msg);
-            Object geo = jsonObject.get("geo");
-            Object place = jsonObject.get("place");
-            String text = (String) jsonObject.get("text");
-
-            //XXX for debug purposes; remove
-            if (geo != null || place != null) {
-                System.out.println("-------------!!!!");
-                //System.out.println(msg);
-                System.out.println(geo);
-                System.out.println(place);
-            }
-
-            kafkaService.send(text);
+            kafkaService.send(twitterMessage.getText());
         }
     }
 
-
     @PreDestroy
-    protected void finalize() {
+    protected void destroy() {
         twitterClient.stop();
     }
 

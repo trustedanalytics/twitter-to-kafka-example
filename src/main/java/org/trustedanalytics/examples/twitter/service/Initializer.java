@@ -16,25 +16,36 @@
 
 package org.trustedanalytics.examples.twitter.service;
 
-import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * This component is a starting point of Twitter data feed consumption.
+ */
 @Component
 public class Initializer {
-    @Autowired
-    TwitterStreamConsumer twitterStreamConsumer;
 
-    @EventListener
-    public void handleContextRrefresh(ContextRefreshedEvent event) {
-        System.out.println("-------------------------------------- " + twitterStreamConsumer);
+    private static final Logger LOG = LoggerFactory.getLogger(Initializer.class);
+
+    @Autowired
+    private TwitterStreamConsumer twitterStreamConsumer;
+
+    /**
+     * This event listener is invoked on the Spring context initialization
+     * which is basically the application startup.
+     */
+    @EventListener(ContextRefreshedEvent.class)
+    public void handleContextRefresh() {
+        LOG.info("Starting the Twitter consumer : " + twitterStreamConsumer);
 
         try {
             twitterStreamConsumer.run();
-        } catch (InterruptedException | ParseException e) {
-            e.printStackTrace();
+        } catch (InterruptedException e) {
+            LOG.warn("The twitterStreamConsumer.run() has been interrupted.", e);
         }
     }
 }
