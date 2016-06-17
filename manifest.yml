@@ -4,7 +4,7 @@ applications:
   memory: 1G
   instances: 1
   host: twitter-to-kafka
-  path: target/twitter-to-kafka-0.0.2-SNAPSHOT.jar
+  path: target/twitter-to-kafka-0.0.6.jar
   services:
   - kafka-twitter-instance
   env:

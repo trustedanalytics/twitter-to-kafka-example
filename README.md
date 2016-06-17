@@ -16,6 +16,8 @@ This simple example uses application.properties to provide some configuration da
 
 
 ## Deploying to cloud foundry
+
+### Manual deployment
 To deploy this application to Cloud Foundry you could use the following manifest file (after putting your own configuration data):
 
     ---
@@ -37,6 +39,12 @@ To deploy this application to Cloud Foundry you could use the following manifest
         TWITTER_LOCATIONS: <<your data goes here>>
         KAFKA_TOPIC: <<your data goes here>>
 
+### Automated deployment
+* Switch to `deploy` directory: `cd deploy`
+* Install tox: `sudo -E pip install --upgrade tox`
+* Run: `tox`
+* Activate virtualenv with installed dependencies: `. .tox/py27/bin/activate`
+* Run deployment script: `python deploy.py` providing required parameters when running script (`python deploy.py -h` to check script parameters with their descriptions).
 
 
 # TODO
