@@ -20,7 +20,7 @@
 
     <groupId>org.trustedanalytics.examples</groupId>
     <artifactId>twitter-to-kafka</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <packaging>jar</packaging>
 
     <name>twitter-to-kafka-example</name>
@@ -104,6 +104,16 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/cloudfoundry</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -136,10 +146,10 @@
                     </headerDefinitions>
 
                     <header>license/license_header_2016.txt</header>
-		    <validHeaders>
-		        <validHeader>license/license_header_2015.txt</validHeader>
-		        <validHeader>license/license_header_2016.txt</validHeader>
-		    </validHeaders>
+                    <validHeaders>
+                        <validHeader>license/license_header_2015.txt</validHeader>
+                        <validHeader>license/license_header_2016.txt</validHeader>
+                    </validHeaders>
 
                     <includes>
                         <include>src/**/*.java</include>
@@ -160,6 +170,25 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>cp</executable>
+                    <arguments>
+                        <argument>target/classes/manifest.yml</argument>
+                        <argument>manifest.yml</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
